@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For You</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;700&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmo2czR0eXM1MGp4aGM5ZjhndGthN3R0amhpbHR4aDR2eGNreW1ubCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTcnT2ZYSaCTdkTSmI/giphy.gif') center/cover no-repeat fixed;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .book {
+      width: 90vw;
+      max-width: 500px;
+      height: 80vh;
+      max-height: 600px;
+      position: relative;
+      perspective: 2000px;
+    }
+
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #fffaf3 url('https://www.transparenttextures.com/patterns/old-mathematics.png');
+      border-radius: 10px;
+      transform-origin: left;
+      transform-style: preserve-3d;
+      transition: transform 1s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      backface-visibility: hidden;
+      z-index: 10;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .page.cover {
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('cover.jpg') center/cover no-repeat;
+      color: #fff;
+      font-family: 'Playfair Display', serif;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: none;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .page.cover h2 {
+      font-size: 5vw;
+      margin: 0;
+      padding: 10px 25px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .page.cover p {
+      font-size: 4vw;
+      margin-top: 20px;
+      font-style: italic;
+      color: #ffeef0;
+      max-width: 90%;
+    }
+
+    .page p {
+      font-size: 3.8vw;
+      color: #222;
+      font-family: 'Playfair Display', serif;
+      line-height: 1.6;
+      max-width: 90%;
+    }
+
+    .page.last-page {
+      background-color: #121212;
+      color: #fff;
+      padding: 20px;
+      background-image: none;
+      overflow-y: auto;
+    }
+
+    .flipped {
+      transform: rotateY(-180deg);
+      z-index: 0 !important;
+    }
+
+    .book .page:nth-child(1) { z-index: 6; }
+    .book .page:nth-child(2) { z-index: 5; }
+    .book .page:nth-child(3) { z-index: 4; }
+    .book .page:nth-child(4) { z-index: 3; }
+    .book .page:nth-child(5) { z-index: 2; }
+    .book .page:nth-child(6) { z-index: 1; }
+
+    .controls {
+      position: absolute;
+      bottom: -80px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #f9c5d1;
+      border: none;
+      color: #5c0031;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 3vw;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: #f7a6b2;
+      transform: scale(1.05);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+
+    .spotify-card {
+      background-color: #181818;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 340px;
+      padding: 20px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .spotify-card .logo {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+    }
+
+    .album-art {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      animation: pulse 2.5s ease-in-out infinite;
+      box-shadow: 0 0 10px #1db954;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px #1db954; }
+      50% { box-shadow: 0 0 20px #1db954aa; }
+      100% { box-shadow: 0 0 10px #1db954; }
+    }
+
+    .spotify-card h3 {
+      margin: 0;
+      font-size: 18px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .spotify-card p {
+      margin: 5px 0 15px;
+      font-size: 14px;
+      color: #b3b3b3;
+      text-align: left;
+      width: 100%;
+    }
+
+    .spotify-card audio {
+      width: 100%;
+      filter: brightness(0.9);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="book" id="book">
+  <!-- Cover Page -->
+  <div class="page cover">
+    <h2>Happy Birthday</h2>
+  </div>
+
+  <!-- Page 1 -->
+  <div class="page page1">
+    <p>
+      Happy Birthday! Wishing the most beautiful and wonderful person a day full of love and light.  
+      You deserve all the happiness today and always ❤️
+    </p>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page page2">
+    <p>
+      Even in silence, you’ve shown strength and grace.  
+      You’re not just strong  you’re inspiring.
+    </p>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page page3">
+    <p>
+      You are more than enough.  
+      On tough days, remember:  
+      You’re loved, you’re worthy, and always beautiful inside and out.
+    </p>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page page4">
+    <p>
+      May this year bring you peace, growth, and joy.  
+      Keep shining. The world is better with you in it.  
+      Happy Birthday, beautiful 🌸❤️
+    </p>
+  </div>
+
+  <!-- Last Page -->
+  <div class="page last-page">
+    <div class="spotify-card">
+      <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" alt="Spotify Logo">
+      <video id="musicVideo" class="album-art" playsinline>
+        <source src="your-video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <h3>Happy Birthday</h3>
+      <p>Shaine Cutieee</p>
+      <audio id="musicAudio" controls>
+        <source src="hbd.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="controls">
+    <button onclick="prevPage()">⬅ Prev</button>
+    <button onclick="nextPage()">Next ➡</button>
+  </div>
+</div>
+
+<script>
+  const pages = document.querySelectorAll(".page");
+  let currentPage = 0;
+
+  function nextPage() {
+    if (currentPage < pages.length - 1) {
+      pages[currentPage].classList.add("flipped");
+      currentPage++;
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      pages[currentPage].classList.remove("flipped");
+    }
+  }
+
+  const audio = document.getElementById('musicAudio');
+  const video = document.getElementById('musicVideo');
+
+  // Sync video with audio
+  audio.addEventListener('play', () => {
+    video.currentTime = audio.currentTime;
+    video.play().catch(err => console.error("Video play error:", err));
+  });
+
+  audio.addEventListener('pause', () => {
+    video.pause();
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    if (Math.abs(video.currentTime - audio.currentTime) > 0.3) {
+      video.currentTime = audio.currentTime;
+    }
+  });
+
+  audio.addEventListener('ended', () => {
+    video.pause();
+    video.currentTime = 0;
+  });
+
+  // Optional: loop video manually if audio continues playing
+  video.addEventListener('ended', () => {
+    if (!audio.ended) {
+      video.currentTime = audio.currentTime;
+      video.play();
+    }
+  });
+  audio.addEventListener('timeupdate', () => {
+  if (audio.currentTime >= 15) {
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    audio.play();
+    video.play();
+  }
+});
+</script>
+
+
+</body>
+</html>
